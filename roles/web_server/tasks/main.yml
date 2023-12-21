@@ -1,0 +1,81 @@
+- name: Install yum-utils 
+  tags: aws-linux
+  dnf:
+    name: 
+      - yum-utils
+    state: latest 
+  when: ansible_distribution == "Amazon"
+
+- name: Install yum
+  tags: aws-linux
+  dnf:
+    name: yum
+    state: latest
+
+- name: Yum update
+  tags: aws-linux
+  dnf: 
+    name: '*'
+    state: latest 
+
+- name: Install required packages for certbot
+  tags: certbot
+  dnf:
+    name:
+      - augeas-libs
+    state: latest
+
+- name: Install certbot 
+  tags: certbot
+  shell: sudo python3 -m venv /opt/certbot/ ; sudo /opt/certbot/bin/pip install --upgrade pip ; sudo /opt/certbot/bin/pip install certbot certbot 
+
+- name: Prepare certbot command
+  tags: certbot
+  shell: >
+    if [ ! -e /usr/bin/certbot ]; then
+      sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
+    else
+      echo "Symbolic link /usr/bin/certbot already exists. Skipping."
+    fi
+
+- name: Create cloudflare directory
+  tags: cloudflare
+  file:
+    path: /root/.ssh/cloudflare 
+    state: directory 
+    mode: 0755
+
+- name: Push cloudflare.ini
+  tags: cloudflare
+  copy: 
+    src: cloudflares.ini
+    dest: /root/.ssh/cloudflare/cloudflare.ini
+    owner: root
+    group: root
+    mode: 400
+
+- name: Install docker
+  tags: docker
+  dnf:
+    name:
+      - docker
+      - rsync
+      - unzip
+      - wget
+    state: latest
+
+- name: Start docker
+  tags: docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Create wordpress path
+  tags: wordpress
+  file:
+    path: /var/www/wordpress
+    state: directory
+    mode: 0755 
+
+

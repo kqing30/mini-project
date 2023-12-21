@@ -1,0 +1,24 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: update repo index (AWS Linux)
+    tags: always
+    dnf:
+      update_cache: yes
+    changed_when: false 
+    when: ansible_distribution == "Amazon"
+
+- hosts: web_server 
+  become: true
+  roles:
+    - web_server
+
+#  - hosts: db_server
+#    become: true
+#    roles: 
+#      - db_server
+
+    

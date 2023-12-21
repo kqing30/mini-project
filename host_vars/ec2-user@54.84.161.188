@@ -1,0 +1,2 @@
+php_package_name: libapache2-mod-php
+snapd_package_name: snapd
